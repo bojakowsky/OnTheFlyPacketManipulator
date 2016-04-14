@@ -1,6 +1,7 @@
 import sys
 import gtk
 from PyQt4 import QtGui, QtCore
+from insertRuleWindow import *
 
 lista = ['aa', 'ab', 'ac']
 listb = ['ba', 'bb', 'bc']
@@ -45,7 +46,7 @@ class myListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
 class myRemoveButton(QtGui.QPushButton, QtGui.QListWidget):
 
     def Clicked(self, listToEdit):
-        print listToEdit
+        print(listToEdit)
 
 class mainView(QtGui.QWidget):
 
@@ -53,74 +54,11 @@ class mainView(QtGui.QWidget):
         super(mainView, self).__init__()
         self.initUI()
 
-
-
     def initUI(self):
-        insertRuleWidget = QtGui.QWidget()
-        insertRuleWidget.setGeometry(mWidth/8,  mWidth/8, mWidth/4, mHeight/4)
-        insertRuleWidget.setWindowTitle('Insert new rule')
-        insertRuleLayout = QtGui.QHBoxLayout()
-
-        insertRuleTextbox = QtGui.QLineEdit()
-        insertAttrsTextbox = QtGui.QLineEdit()
-        insertVarsTextbox = QtGui.QLineEdit()
-
-        insertRuleButton = QtGui.QPushButton('Save')
-        insertRuleCancelButton = QtGui.QPushButton('Cancel')
-
-        insertRuleNameLabel = QtGui.QLabel()
-        insertRuleNameLabel.setText("Rule Name")
-        insertRuleTypeLabel = QtGui.QLabel()
-        insertRuleTypeLabel.setText("Packet type")
-        insertRuleVarsLabel = QtGui.QLabel()
-        insertRuleVarsLabel.setText("Variables")
-        insertRuleAttrsLabel = QtGui.QLabel()
-        insertRuleAttrsLabel.setText("Attributes")
-
-        insertRuleWidget.setLayout(insertRuleLayout)
-
-        insertRuleSplitterV = QtGui.QSplitter(QtCore.Qt.Vertical)
-        insertRuleLayout.addWidget(insertRuleSplitterV)
-
-        insertRuleSplitterV.addWidget(insertRuleNameLabel)
-        insertRuleSplitterV.addWidget(insertRuleTextbox)
-        insertRuleSplitterV.addWidget(insertRuleTypeLabel)
-
-        comboBox = QtGui.QComboBox(self)
-        comboBox.addItem("ICMP")
-        comboBox.addItem("TCP")
-        comboBox.addItem("UDP")
-
-        insertRuleSplitterV.addWidget(comboBox)
-        insertRuleSplitterV.addWidget(insertRuleAttrsLabel)
-        insertRuleSplitterV.addWidget(insertAttrsTextbox)
-        insertRuleSplitterV.addWidget(insertRuleVarsLabel)
-        insertRuleSplitterV.addWidget(insertVarsTextbox)
-
-        insertRuleButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        insertRuleButtonSplitter.addWidget(insertRuleButton)
-        insertRuleButtonSplitter.addWidget(insertRuleCancelButton)
-        insertRuleSplitterV.addWidget(insertRuleButtonSplitter)
-
-        def insertRuleModalClearAndHide():
-            insertRuleTextbox.clear()
-            insertRuleWidget.hide()
-
-
-        def insertRule():
-            insertItemRule = QtGui.QListWidgetItem(insertRuleTextbox.text())
-            list.addItem(insertItemRule)
-            insertRuleModalClearAndHide()
-
-        insertRuleButton.clicked.connect(insertRule)
-
-        def insertRuleModalHide():
-            insertRuleModalClearAndHide()
-
-        insertRuleCancelButton.clicked.connect(insertRuleModalHide)
-
-        hbox = QtGui.QHBoxLayout(self)
         list = myListWidget()
+        insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list)
+        hbox = QtGui.QHBoxLayout(self)
+
         insertButton = QtGui.QPushButton('New rule')
         removeButton = QtGui.QPushButton('Remove selected')
         table = MyTable(mystruct, 5, 3)
@@ -132,7 +70,7 @@ class mainView(QtGui.QWidget):
         removeButton.clicked.connect(removeRule)
 
         def insertRuleModalShow():
-            insertRuleWidget.show()
+            insertRuleWindow.show()
 
         insertButton.clicked.connect(insertRuleModalShow)
 

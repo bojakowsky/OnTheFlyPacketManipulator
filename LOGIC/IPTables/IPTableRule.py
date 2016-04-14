@@ -1,17 +1,12 @@
 from enum import Enum
-from subprocess import call
+from IPTablePolicy import *
 
 
-def add_rule(tableType, chain, action, event):
-    call(["iptables", '-t',tableType.value, action.value, chain.value, '-j', event.value])
-    pass
-
-
-class TableTypeEnum(Enum):
-    filter = 'filter' #default table
-    nat = 'nat' #for packets that establish connections
-    mangle = 'mangle' #for specialized changes in the packets
-    raw = 'raw' #highest priority table, packets go to this table first
+class IPTableRule(IPTablePolicy):
+    def __init__(self, tableType, chain, chainTarget):
+        self.tableType = tableType
+        self.chainTarget = chainTarget
+        self.chain = chain
 
 
 class ChainEnum(Enum):
@@ -47,21 +42,8 @@ class RawEnum(Enum):
     output = ChainEnum.output
 
 
-class TableActionEnum(Enum):
-    add_back_to_chain = '-A' #add to the end of the chain
-    set_default_chain_policy = '-P' #setting default chain policy
-    delete_from_chain = '-D' #deleting from the chain
-
-
-class TableActionEventEnum(Enum):
+class ChainTargetEnum(Enum):
     accept = 'ACCEPT' #receive packet
     drop = 'DROP' #drops the packet without informing the sender
     reject = 'REJECT' #drops the packets and informs the sender about error (default ICMP port unreachable)
     nfqueue = 'NFQUEUE' #adds packet to nfqeueue
-
-
-def main():
-    add_rule(TableTypeEnum.filter, ChainEnum.forward, TableActionEnum.add_back_to_chain, TableActionEventEnum.nfqueue)
-
-
-main()
