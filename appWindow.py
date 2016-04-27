@@ -57,19 +57,50 @@ class mainView(QtGui.QWidget):
 
     def initUI(self):
         insertRuleWidget = QtGui.QWidget()
+        insertRuleWidget.setGeometry(mWidth/8,  mWidth/8, mWidth/4, mHeight/4)
+        insertRuleWidget.setWindowTitle('Insert new rule')
         insertRuleLayout = QtGui.QHBoxLayout()
+
         insertRuleTextbox = QtGui.QLineEdit()
+        insertAttrsTextbox = QtGui.QLineEdit()
+        insertVarsTextbox = QtGui.QLineEdit()
+
         insertRuleButton = QtGui.QPushButton('Save')
         insertRuleCancelButton = QtGui.QPushButton('Cancel')
-        insertRuleLabel = QtGui.QLabel()
-        insertRuleLabel.setText("Insert new rule")
+
+        insertRuleNameLabel = QtGui.QLabel()
+        insertRuleNameLabel.setText("Rule Name")
+        insertRuleTypeLabel = QtGui.QLabel()
+        insertRuleTypeLabel.setText("Packet type")
+        insertRuleVarsLabel = QtGui.QLabel()
+        insertRuleVarsLabel.setText("Variables")
+        insertRuleAttrsLabel = QtGui.QLabel()
+        insertRuleAttrsLabel.setText("Attributes")
+
         insertRuleWidget.setLayout(insertRuleLayout)
-        insertRuleLayout.addWidget(insertRuleLabel)
-        insertRuleLayout.addWidget(insertRuleTextbox)
+
+        insertRuleSplitterV = QtGui.QSplitter(QtCore.Qt.Vertical)
+        insertRuleLayout.addWidget(insertRuleSplitterV)
+
+        insertRuleSplitterV.addWidget(insertRuleNameLabel)
+        insertRuleSplitterV.addWidget(insertRuleTextbox)
+        insertRuleSplitterV.addWidget(insertRuleTypeLabel)
+
+        comboBox = QtGui.QComboBox(self)
+        comboBox.addItem("ICMP")
+        comboBox.addItem("TCP")
+        comboBox.addItem("UDP")
+
+        insertRuleSplitterV.addWidget(comboBox)
+        insertRuleSplitterV.addWidget(insertRuleAttrsLabel)
+        insertRuleSplitterV.addWidget(insertAttrsTextbox)
+        insertRuleSplitterV.addWidget(insertRuleVarsLabel)
+        insertRuleSplitterV.addWidget(insertVarsTextbox)
+
         insertRuleButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         insertRuleButtonSplitter.addWidget(insertRuleButton)
         insertRuleButtonSplitter.addWidget(insertRuleCancelButton)
-        insertRuleLayout.addWidget(insertRuleButtonSplitter)
+        insertRuleSplitterV.addWidget(insertRuleButtonSplitter)
 
         def insertRuleModalClearAndHide():
             insertRuleTextbox.clear()
@@ -125,7 +156,7 @@ class mainView(QtGui.QWidget):
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
 
         self.setGeometry(0, 0, mWidth/2, mHeight)
-        self.setWindowTitle('')
+        self.setWindowTitle('OnTheFlyPacketManipulator')
         self.show()
 
 def main():
