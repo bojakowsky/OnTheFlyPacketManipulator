@@ -22,6 +22,9 @@
 #print("\n")
 
 import os,sys,nfqueue,socket
+from IPy import IP
+from impacket.ImpactPacket import ICMP, UDP, TCP
+
 from scapy.all import *
 
 import sys
@@ -33,7 +36,7 @@ conf.L3socket = L3RawSocket
 
 def send_echo_reply(pkt):
     ip = IP()
-    icmp = ICMP()/"TAAAAAAAAAAAADAAAM"
+    icmp = ICMP()
     ip.src = pkt[IP].dst
     ip.dst = pkt[IP].src
     icmp.type = 0
@@ -41,8 +44,35 @@ def send_echo_reply(pkt):
     icmp.id = pkt[ICMP].id
     icmp.seq = pkt[ICMP].seq
     print("[ICMP] Sending echo reply to %s" % ip.dst)
-    data = pkt[ICMP].payload
+    data = "Icmp reply"
     send(ip/icmp/data, verbose=0)
+
+
+def send_udp_reply(pkt):
+    ip = IP()
+    udp = UDP()
+    ip.src = pkt[IP].dst
+    ip.dst = pkt[IP].src
+    udp.id = pkt[UDP].id
+    udp.sport = pkt[UDP].dport
+    udp.dport = pkt[UDP].sport
+    print("[UDP] Sending UDP reply to %s" % ip.dst)
+    data = "Udp reply"
+    send(ip / udp / data, verbose=0)
+
+
+def send_tcp_reply(pkt, flag):
+    ip = IP()
+    tcp = TCP()
+    ip.src = pkt[IP].dst
+    ip.dst = pkt[IP].src
+    tcp.ack = pkt[TCP].ack
+    tcp.sport = pkt[TCP].dport
+    tcp.dport = pkt[TCP].sport
+    tcp.flags = flag
+    print("[UDP] Sending TCP reply to %s" % ip.dst)
+    data = "Tcp reply"
+    send(ip / tcp / data)
 
 
 def process(i, payload):
@@ -59,12 +89,36 @@ def process(i, payload):
             # Idea: intercept an echo request and immediately send back an echo reply packet
             if pkt[ICMP].type is 8:
                 print("[ICMP] Echo request detected.")
+                print("[ICMP] " + str(pkt[ICMP].payload))
                 send_echo_reply(pkt)
             else:
                 pass
     elif proto is 0x11:
         print ("[UDP] UDP packet received.")
         print ("[UDP] " + str(pkt[UDP].payload))
+        send_udp_reply(pkt)
+    elif proto is 0x06:
+        print ("[TCP] TCP packet received.")
+        if pkt[TCP].flags == 0x01: #FIN flag
+            pass
+        elif pkt[TCP].flags == 0x02: #SYN flag
+            print ("[TCP] " + str(pkt[TCP].payload))
+            send_tcp_reply(pkt, 0x10)
+            pass
+        elif pkt[TCP].flags == 0x04: #RST flag
+            print("TCP " + str(pkt[TCP].payload))
+            send_tcp_reply(pkt, 0x04)
+            pass
+        elif pkt[TCP].flags == 0x08: #PSH flag
+            pass
+        elif pkt[TCP].flags == 0x10: #ACK flag
+            pass
+        elif pkt[TCP].flags == 0x20: #URG flag
+            pass
+        elif pkt[TCP].flags == 0x40: #ECE flag
+            pass
+        elif pkt[TCP].flags == 0x80: #CWR flag
+            pass
     else:
         print("[Error] Protocol not handled.")
         pass
