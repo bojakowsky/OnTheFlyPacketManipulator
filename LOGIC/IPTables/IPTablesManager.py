@@ -6,27 +6,50 @@ class IPTableRulesManager:
     rulesDict = {}
     policyDict = {}
     ruleId = 0
-
-    def add_rule_ICMP(self, ipTableRuleICMP):
-        pass
-
-    def add_rule_UDP(self, ipTableRuleUDP):
-        pass
-
-    def add_rule_TCP(self, ipTableRuleTCP):
-        pass
-
-    def add_rule(self, ipTableRule):
+    def add_table_rules_manager(self, ipTableRule):
         IPTableRulesManager.rulesDict[IPTableRulesManager.ruleId] = ipTableRule;
         IPTableRulesManager.ruleId += 1
-        callBegin = ["iptables", '-t',
-              ipTableRule.tableType.value,
-              TableActionEnum.add_back_to_chain.value,
-              ipTableRule.chain.value]
-        if ipTableRule.source is not None:
 
-        callEnd = ['-j', ipTableRule.chainTarget.value]
-        call()
+    def add_rule_ICMP(self, ipTableRuleICMP):
+        add_table_rules_manager(ipTableRuleICMP)
+        callBegin = build_rule(ipTableRule)
+
+        call(callBegin)
+
+    def add_rule_UDP(self, ipTableRuleUDP):
+        add_table_rules_manager(ipTableRuleUDP)
+        callBegin = build_rule(ipTableRule)
+        call(callBegin)
+
+    def add_rule_TCP(self, ipTableRuleTCP):
+        add_table_rules_manager(ipTableRuleTCP)
+        callBegin = build_rule(ipTableRule)
+        call(callBegin)
+
+    def add_rule(self, ipTableRule):
+        callBegin = build_rule(ipTableRule)
+        call(callBegin)
+
+    def build_rule(self, ipTableRule):
+        callBegin = ["iptables", '-t',
+                     ipTableRule.tableType.value,
+                     TableActionEnum.add_back_to_chain.value,
+                     ipTableRule.chain.value]
+
+        if ipTableRule.source is not None:
+            callBegin.append('-s')
+            callBegin.append(ipTableRule.source)
+        if ipTableRule.destination is not None:
+            callBegin.append('-d')
+            callBegin.append(ipTableRule.destination)
+        if ipTableRule.limit is not None:
+            callBegin.append('-m')
+            callBegin.append('limit')
+            callBegin.append('--limit')
+            callBegin.append(ipTableRule.limit)
+        callBegin.append('-j')
+        callBegin.append(ipTableRule.chainTarget.value)
+        return callBegin
 
     def remove_rule(self, ruleId):
         objToDelete = IPTableRulesManager.rulesDict[ruleId]
@@ -54,11 +77,14 @@ class TableActionEnum(Enum):
 
 def test():
     rulesManager = IPTableRulesManager()
-    tableRule = IPTableRule(TableTypeEnum.filter, ChainEnum.output, ChainTargetEnum.drop)
+    tableRule = IPTableRule(TableTypeEnum.filter, ChainEnum.output, ChainTargetEnum.drop, None, None, None)
     rulesManager.add_rule(tableRule)
     rulesManager.remove_rule(0)
+    tableRule.source = "192.168.111.111"
+    tableRule.destination = "192.168.111.112"
+    tableRule.limit = "4/m"
     rulesManager.add_rule(tableRule)
-    tablePolicy = IPTablePolicy(TableTypeEnum.filter, ChainEnum.input, ChainTargetEnum.accept)
+    tablePolicy = IPTablePolicy(TableTypeEnum.filter, ChainEnum.input, ChainTargetEnum.accept, )
     rulesManager.set_chain_policy(tablePolicy)
     print(len(IPTableRulesManager.rulesDict))
 

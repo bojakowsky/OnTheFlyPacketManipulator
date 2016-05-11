@@ -3,12 +3,13 @@ from IPTablePolicy import *
 
 
 class IPTableRule(IPTablePolicy):
-    def __init__(self, tableType, chain, chainTarget, source, destination):
+    def __init__(self, tableType, chain, chainTarget, source, destination, limit):
         self.tableType = tableType
         self.chainTarget = chainTarget
         self.chain = chain
         self.source = source
         self.destination = destination
+        self.limit = limit
 
 
 class ChainEnum(Enum):
