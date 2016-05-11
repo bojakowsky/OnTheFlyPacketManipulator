@@ -2,7 +2,7 @@ import sys
 import gtk
 from PyQt4 import QtGui, QtCore
 from insertRuleWindow import *
-import LOGIC.IPTables.IPTableRule
+from LOGIC.IPTables.IPTableRule import *
 
 lista = ['aa', 'ab', 'ac']
 listb = ['ba', 'bb', 'bc']

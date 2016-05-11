@@ -12,13 +12,18 @@ class IPTableRulesManager:
 
     def add_rule_ICMP(self, ipTableRuleICMP):
         add_table_rules_manager(ipTableRuleICMP)
-        callBegin = build_rule(ipTableRule)
-
+        callBegin = build_rule(ipTableRuleICMP)
+        callBegin.append('-p')
+        callBegin.append('ICMP')
+        if ipTableRuleICMP.icmpType is not None:
+            callBegin.append('--icmp-type')
+            callBegin.append(ipTableRuleICMP.icmpType) #Hex value
         call(callBegin)
 
     def add_rule_UDP(self, ipTableRuleUDP):
         add_table_rules_manager(ipTableRuleUDP)
         callBegin = build_rule(ipTableRule)
+
         call(callBegin)
 
     def add_rule_TCP(self, ipTableRuleTCP):
