@@ -7,13 +7,26 @@ class IPTableRulesManager:
     policyDict = {}
     ruleId = 0
 
+    def add_rule_ICMP(self, ipTableRuleICMP):
+        pass
+
+    def add_rule_UDP(self, ipTableRuleUDP):
+        pass
+
+    def add_rule_TCP(self, ipTableRuleTCP):
+        pass
+
     def add_rule(self, ipTableRule):
         IPTableRulesManager.rulesDict[IPTableRulesManager.ruleId] = ipTableRule;
         IPTableRulesManager.ruleId += 1
-        call(["iptables", '-t',
+        callBegin = ["iptables", '-t',
               ipTableRule.tableType.value,
               TableActionEnum.add_back_to_chain.value,
-              ipTableRule.chain.value, '-j', ipTableRule.chainTarget.value])
+              ipTableRule.chain.value]
+        if ipTableRule.source is not None:
+
+        callEnd = ['-j', ipTableRule.chainTarget.value]
+        call()
 
     def remove_rule(self, ruleId):
         objToDelete = IPTableRulesManager.rulesDict[ruleId]
