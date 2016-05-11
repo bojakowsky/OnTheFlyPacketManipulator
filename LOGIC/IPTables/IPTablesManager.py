@@ -11,8 +11,8 @@ class IPTableRulesManager:
         IPTableRulesManager.ruleId += 1
 
     def add_rule_ICMP(self, ipTableRuleICMP):
-        add_table_rules_manager(ipTableRuleICMP)
-        callBegin = build_rule(ipTableRuleICMP)
+        self.add_table_rules_manager(ipTableRuleICMP)
+        callBegin = self.build_rule(ipTableRuleICMP)
         callBegin.append('-p')
         callBegin.append('ICMP')
         if ipTableRuleICMP.icmpType is not None:
@@ -21,19 +21,42 @@ class IPTableRulesManager:
         call(callBegin)
 
     def add_rule_UDP(self, ipTableRuleUDP):
-        add_table_rules_manager(ipTableRuleUDP)
-        callBegin = build_rule(ipTableRule)
-
+        self.add_table_rules_manager(ipTableRuleUDP)
+        callBegin = self.build_rule(ipTableRuleUDP)
+        callBegin.append('-p')
+        callBegin.append('UDP')
+        if ipTableRuleUDP.sport is not None:
+            callBegin.append('--dport')
+            callBegin.append(ipTableRuleUDP.sport)
+        if ipTableRuleUDP.dport is not None:
+            callBegin.append('--sport')
+            callBegin.append(ipTableRuleUDP.dport)
         call(callBegin)
 
     def add_rule_TCP(self, ipTableRuleTCP):
-        add_table_rules_manager(ipTableRuleTCP)
-        callBegin = build_rule(ipTableRule)
+        self.add_table_rules_manager(ipTableRuleTCP)
+        callBegin = self.build_rule(ipTableRuleTCP)
+        callBegin.append('-p')
+        callBegin.append('TCP')
+        if ipTableRuleTCP.sport is not None:
+            callBegin.append('--dport')
+            callBegin.append(ipTableRuleTCP.sport)
+        if ipTableRuleTCP.dport is not None:
+            callBegin.append('--sport')
+            callBegin.append(ipTableRuleTCP.dport)
+        if ipTableRuleTCP.flags is not None:
+            flagsToCall = flags[0]
+            for flag in flags[1:]:
+                flagsToCall += "," +flag
+            callBegin.append('--tcp-flags')
+            callBegin.append(flagsToCall)
         call(callBegin)
 
     def add_rule(self, ipTableRule):
-        callBegin = build_rule(ipTableRule)
+        self.add_table_rules_manager(ipTableRule)
+        callBegin = self.build_rule(ipTableRule)
         call(callBegin)
+        pass
 
     def build_rule(self, ipTableRule):
         callBegin = ["iptables", '-t',
