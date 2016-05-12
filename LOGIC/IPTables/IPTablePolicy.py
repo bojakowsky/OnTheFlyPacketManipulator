@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class IPTablePolicy:
+class IPTablePolicy(object):
     def __init__(self, tableType, chain, chainTarget):
         self.tableType = tableType
         self.chainTarget = chainTarget
@@ -9,9 +9,9 @@ class IPTablePolicy:
 
 class TableTypeEnum(Enum):
     filter = 'filter' #default table
-    nat = 'nat' #for packets that establish connections
+    nat = 'nat' #for packets that establish connections // not working
     mangle = 'mangle' #for specialized changes in the packets
-    raw = 'raw' #highest priority table, packets go to this table first
+    raw = 'raw' #highest priority table, packets go to this table first // not working
 
 class ChainEnum(Enum):
     input = 'INPUT' #executed for incoming packets, puprosed for local machine

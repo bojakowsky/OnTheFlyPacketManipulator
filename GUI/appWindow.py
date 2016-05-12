@@ -3,6 +3,7 @@ import gtk
 from PyQt4 import QtGui, QtCore
 from insertRuleWindow import *
 from LOGIC.IPTables.IPTableRule import *
+from subprocess import call
 
 lista = ['aa', 'ab', 'ac']
 listb = ['ba', 'bb', 'bc']
@@ -21,10 +22,12 @@ for m in range(nmons):
 curmon = screen.get_monitor_at_window(screen.get_active_window())
 x, y, mWidth, mHeight = monitors[curmon]
 
+ipTablesManager = IPTablesManager()
+
 class MyTable(QtGui.QTableWidget):
     def __init__(self, thestruct, *args):
         QtGui.QTableWidget.__init__(self, *args)
-        self.setGeometry(600,600,600,600)
+        self.setGeometry(600, 600, 600, 600)
         self.data = thestruct
         self.setmydata()
 
@@ -57,7 +60,6 @@ class mainView(QtGui.QWidget):
 
     def initUI(self):
         list = myListWidget()
-        insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list)
         hbox = QtGui.QHBoxLayout(self)
 
         insertButton = QtGui.QPushButton('New rule')
@@ -66,31 +68,29 @@ class mainView(QtGui.QWidget):
 
         def removeRule():
             for SelectedItem in list.selectedItems():
+                ipTablesManager.remove_rule(list.row(SelectedItem))
                 list.takeItem(list.row(SelectedItem))
 
         removeButton.clicked.connect(removeRule)
 
         def insertRuleModalShow():
+            insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
             insertRuleWindow.show()
 
         insertButton.clicked.connect(insertRuleModalShow)
 
-
-        for i in range(10):
-            item = QtGui.QListWidgetItem("Rule %i" % i)
-            list.addItem(item)
-        label1 = QtGui.QLabel()
-        label1.setText("Rules")
+        rulesLabel = QtGui.QLabel()
+        rulesLabel.setText("Rules")
         buttonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        splitter1 = QtGui.QSplitter(QtCore.Qt.Vertical)
-        splitter1.addWidget(label1)
-        splitter1.addWidget(list)
+        vericalSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        vericalSplitter.addWidget(rulesLabel)
+        vericalSplitter.addWidget(list)
         buttonSplitter.addWidget(insertButton)
         buttonSplitter.addWidget(removeButton)
-        splitter1.addWidget(buttonSplitter)
-        splitter1.addWidget(table)
+        vericalSplitter.addWidget(buttonSplitter)
+        vericalSplitter.addWidget(table)
 
-        hbox.addWidget(splitter1)
+        hbox.addWidget(vericalSplitter)
         self.setLayout(hbox)
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
 
@@ -99,13 +99,19 @@ class mainView(QtGui.QWidget):
         self.show()
 
 def main():
+    try:
+        call("iptables-save > iptables-backup", shell=True)
+        call("iptables -t filter --flush", shell=True)
+        call("iptables -t nat --flush", shell=True)
+        call("iptables -t raw --flush", shell=True)
+        call("iptables -t mangle --flush", shell=True)
 
-    app = QtGui.QApplication(sys.argv)
-    ex = mainView()
-
-    
-    sys.exit(app.exec_())
-
+        app = QtGui.QApplication(sys.argv)
+        ex = mainView()
+        sys.exit(app.exec_())
+    finally:
+        call("iptables-restore < iptables-backup", shell=True)
 
 if __name__ == '__main__':
     main()
+

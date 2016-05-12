@@ -2,7 +2,7 @@ from enum import Enum
 from IPTablePolicy import *
 
 
-class IPTableRule(IPTablePolicy):
+class IPTableRule(object):
     def __init__(self, tableType, chain, chainTarget, source, destination, limit):
         self.tableType = tableType
         self.chainTarget = chainTarget
@@ -11,6 +11,9 @@ class IPTableRule(IPTablePolicy):
         self.destination = destination
         self.limit = limit
 
+    def __iter__(self):
+        for attr, value in self.__dict__.iteritems():
+            yield attr, value
 
 class ChainEnum(Enum):
     input = 'INPUT' #executed for incoming packets, puprosed for local machine
@@ -43,7 +46,6 @@ class MangleEnum(Enum):
 class RawEnum(Enum):
     prerouting = ChainEnum.prerouting
     output = ChainEnum.output
-
 
 class ChainTargetEnum(Enum):
     accept = 'ACCEPT' #receive packet
