@@ -1,11 +1,14 @@
 import sys
 import gtk
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import QThreadPool, pyqtSignal, QObject, QRunnable
+import threading
 from insertRuleWindow import *
 from LOGIC.IPTables.IPTableRule import *
 from subprocess import call
+from LOGIC.PacketManager import *
 
-lista = ['aa', 'ab', 'ac']
+lista = ['aa', 'ab', 'ac', 'ba', 'eds', 'ol']
 listb = ['ba', 'bb', 'bc']
 listc = ['ca', 'cb', 'cc']
 mystruct = {'A': lista, 'B': listb, 'C': listc}
@@ -22,6 +25,8 @@ for m in range(nmons):
 curmon = screen.get_monitor_at_window(screen.get_active_window())
 x, y, mWidth, mHeight = monitors[curmon]
 
+
+
 ipTablesManager = IPTablesManager()
 
 class MyTable(QtGui.QTableWidget):
@@ -37,20 +42,14 @@ class MyTable(QtGui.QTableWidget):
             m = 0
             for item in self.data[key]:
                 newitem = QtGui.QTableWidgetItem(item)
-                self.setItem(m, n, newitem)
+                self.setItem(n, m, newitem)
                 m += 1
             n += 1
 
 class myListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
+    pass
 
-    def Clicked(self, item):
-        self.removeItemWidget(item)
-        QtGui.QMessageBox.warning(self, "ListWidget", "You clicked: "+item.text())
 
-class myRemoveButton(QtGui.QPushButton, QtGui.QListWidget):
-
-    def Clicked(self, listToEdit):
-        print(listToEdit)
 
 class mainView(QtGui.QWidget):
 
@@ -58,16 +57,18 @@ class mainView(QtGui.QWidget):
         super(mainView, self).__init__()
         self.initUI()
 
+
     def initUI(self):
         list = myListWidget()
         hbox = QtGui.QHBoxLayout(self)
 
         insertButton = QtGui.QPushButton('New rule')
         removeButton = QtGui.QPushButton('Remove selected')
-        table = MyTable(mystruct, 5, 3)
+        table = MyTable(mystruct, 50, 20)
 
         def removeRule():
             for SelectedItem in list.selectedItems():
+                print("Removing id: " + str(list.row(SelectedItem)))
                 ipTablesManager.remove_rule(list.row(SelectedItem))
                 list.takeItem(list.row(SelectedItem))
 
@@ -107,10 +108,17 @@ def main():
         call("iptables -t mangle --flush", shell=True)
 
         app = QtGui.QApplication(sys.argv)
-        ex = mainView()
+        view = mainView()
         sys.exit(app.exec_())
+
+        t1 = threading.Thread(target=PacketManagerThread)
+        t1.start()
     finally:
+        print("closing..")
         call("iptables-restore < iptables-backup", shell=True)
+
+def PacketManagerThread():
+    pktMgr = PacketManager()
 
 if __name__ == '__main__':
     main()

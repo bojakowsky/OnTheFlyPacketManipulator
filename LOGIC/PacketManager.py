@@ -1,3 +1,10 @@
+import os,sys,nfqueue,socket
+from IPy import IP
+from impacket.ImpactPacket import ICMP, UDP, TCP
+from scapy.all import *
+
+import sys
+
 conf.verbose = 0
 conf.L3socket = L3RawSocket
 
@@ -6,12 +13,12 @@ class PacketManager(object):
         q = nfqueue.queue()
         q.open()
         q.bind(socket.AF_INET)
-        q.set_callback(process)
+        q.set_callback(self.process)
         q.create_queue(0)
-
         try:
             q.try_run()
         except:
+            print("closing socket")
             q.unbind(socket.AF_INET)
             q.close()
 
@@ -54,6 +61,7 @@ class PacketManager(object):
 
 
     def process(self, i, payload):
+        print("what")
         data = payload.get_data()
         pkt = IP(data)
         proto = pkt.proto
@@ -64,19 +72,19 @@ class PacketManager(object):
         # Check if it is a ICMP packet
         if proto is 0x01:
                 if pkt[ICMP].type is 8:
-                    send_echo_reply(pkt)
+                    self.send_echo_reply(pkt)
                 else:
                     pass
         elif proto is 0x11:
-            send_udp_reply(pkt)
+            self.send_udp_reply(pkt)
         elif proto is 0x06:
             if pkt[TCP].flags == 0x01: #FIN flag
                 pass
             elif pkt[TCP].flags == 0x02: #SYN flag
-                send_tcp_reply(pkt, 0x10)
+                self.send_tcp_reply(pkt, 0x10)
                 pass
             elif pkt[TCP].flags == 0x04: #RST flag
-                send_tcp_reply(pkt, 0x04)
+                self.send_tcp_reply(pkt, 0x04)
                 pass
             elif pkt[TCP].flags == 0x08: #PSH flag
                 pass

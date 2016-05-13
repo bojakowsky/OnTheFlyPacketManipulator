@@ -134,8 +134,7 @@ class InsertRuleWindow(QtGui.QWidget):
             self.deleteLater()
 
         def passInsertRule(ipTable):
-            self.insertItemRule = QtGui.QListWidgetItem(
-                self.RuleNameTextBox.text() + " :: " + ipTablesManager.return_table_as_string(ipTable))
+            self.insertItemRule = QtGui.QListWidgetItem(self.RuleNameTextBox.text() + " :: " + ipTablesManager.return_table_as_string(ipTable))
             list.addItem(self.insertItemRule)
             ClearAndCloseModal()
 
@@ -149,6 +148,7 @@ class InsertRuleWindow(QtGui.QWidget):
                     self.SourceTextBox.text() if self.SourceTextBox.text() != '' else None,
                     self.DestinationTextBox.text() if self.DestinationTextBox.text() != '' else None,
                     self.LimitTextBox.text() if self.LimitTextBox.text() != '' else None,
+                    self.ProtocolCombobox.currentText() if self.ProtocolCombobox.currentText() != 'NONE' else None,
                     self.ConsideredFlagsTextBox.text() if self.ConsideredFlagsTextBox.text() != '' else None,
                     self.MatchedFlagsTextBox.text() if self.MatchedFlagsTextBox.text() != '' else None,
                     self.SourcePortTextBox.text() if self.SourcePortTextBox.text() != '' else None,
@@ -166,6 +166,7 @@ class InsertRuleWindow(QtGui.QWidget):
                     self.SourceTextBox.text() if self.SourceTextBox.text() != '' else None,
                     self.DestinationTextBox.text() if self.DestinationTextBox.text() != '' else None,
                     self.LimitTextBox.text() if self.LimitTextBox.text() != '' else None,
+                    self.ProtocolCombobox.currentText() if self.ProtocolCombobox.currentText() != 'NONE' else None,
                     self.SourcePortTextBox.text() if self.SourcePortTextBox.text() != '' else None,
                     self.DestinationPortTextBox.text() if self.DestinationPortTextBox.text() != '' else None)
                 ipTablesManager.add_rule_UDP(ipTable)
@@ -178,6 +179,7 @@ class InsertRuleWindow(QtGui.QWidget):
                     self.SourceTextBox.text() if self.SourceTextBox.text() != '' else None,
                     self.DestinationTextBox.text() if self.DestinationTextBox.text() != '' else None,
                     self.LimitTextBox.text() if self.LimitTextBox.text() != '' else None,
+                    self.ProtocolCombobox.currentText() if self.ProtocolCombobox.currentText() != 'NONE' else None,
                     self.IcmpTypeTextBox.text() if self.IcmpTypeTextBox.text() != '' else None )
                 ipTablesManager.add_rule_ICMP(ipTable)
                 passInsertRule(ipTable)
@@ -188,7 +190,8 @@ class InsertRuleWindow(QtGui.QWidget):
                     self.ChainTargetTypeCombobox.currentText(),
                     self.SourceTextBox.text() if self.SourceTextBox.text() != '' else None,
                     self.DestinationTextBox.text() if self.DestinationTextBox.text() != '' else None,
-                    self.LimitTextBox.text() if self.LimitTextBox.text() != '' else None)
+                    self.LimitTextBox.text() if self.LimitTextBox.text() != '' else None,
+                    self.ProtocolCombobox.currentText() if self.ProtocolCombobox.currentText() != 'NONE' else None)
                 ipTablesManager.add_rule(ipTable)
                 passInsertRule(ipTable)
 

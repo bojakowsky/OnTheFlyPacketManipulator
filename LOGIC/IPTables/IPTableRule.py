@@ -1,19 +1,51 @@
 from enum import Enum
 from IPTablePolicy import *
-
+from TableActions import *
 
 class IPTableRule(object):
-    def __init__(self, tableType, chain, chainTarget, source, destination, limit):
+    def __init__(self, tableType, chain, chainTarget, source, destination, limit, protocol):
         self.tableType = tableType
         self.chainTarget = chainTarget
         self.chain = chain
         self.source = source
         self.destination = destination
         self.limit = limit
+        self.protocol = protocol
 
     def __iter__(self):
         for attr, value in self.__dict__.iteritems():
             yield attr, value
+
+    def build_add_rule(self):
+        addRule = ["iptables", '-t',
+                     self.tableType,
+                     TableActionEnum.add_back_to_chain.value,
+                   self.chain]
+
+        if self.source is not None:
+            addRule.append('-s')
+            addRule.append(self.source)
+        if self.destination is not None:
+            addRule.append('-d')
+            addRule.append(self.destination)
+        if self.limit is not None:
+            addRule.append('-m')
+            addRule.append('limit')
+            addRule.append('--limit')
+            addRule.append(self.limit)
+        addRule.append('-j')
+        addRule.append(self.chainTarget)
+        return addRule
+
+    def build_remove_rule(self):
+        removeRule = ["iptables", '-t',
+              self.tableType,
+              TableActionEnum.delete_from_chain.value,
+              self.chain, '-j', self.chainTarget]
+        return removeRule
+
+    def build_protocol_specific_rule(self, rule):
+        pass
 
 class ChainEnum(Enum):
     input = 'INPUT' #executed for incoming packets, puprosed for local machine
