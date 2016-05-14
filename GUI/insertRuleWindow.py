@@ -1,12 +1,10 @@
-import sys
-import gtk
 from PyQt4 import QtGui, QtCore
-from LOGIC.SupportedProtocols import *
-from LOGIC.IPTables.IPTableRule import *
-from LOGIC.IPTables.IPTableRuleTCP import *
-from LOGIC.IPTables.IPTablesManager import *
-from LOGIC.IPTables.IPTableRuleUDP import *
-from LOGIC.IPTables.IPTableRuleICMP import *
+
+from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleICMP import *
+from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleUDP import *
+from OnTheFlyPacketManipulator.LOGIC.IPTablesManager import *
+from OnTheFlyPacketManipulator.LOGIC.SupportedProtocols import *
+
 
 class InsertRuleWindow(QtGui.QWidget):
     previousProtocolSelected = 'None'
