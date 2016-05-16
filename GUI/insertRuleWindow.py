@@ -1,9 +1,9 @@
 from PyQt4 import QtGui, QtCore
 
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleICMP import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleUDP import *
-from OnTheFlyPacketManipulator.LOGIC.IPTablesManager import *
-from OnTheFlyPacketManipulator.LOGIC.SupportedProtocols import *
+from LOGIC.IPTables.IPTableRuleICMP import *
+from LOGIC.IPTables.IPTableRuleUDP import *
+from LOGIC.IPTablesManager import *
+from LOGIC.SupportedProtocols import *
 
 
 class InsertRuleWindow(QtGui.QWidget):
@@ -151,11 +151,11 @@ class InsertRuleWindow(QtGui.QWidget):
                     self.MatchedFlagsTextBox.text() if self.MatchedFlagsTextBox.text() != '' else None,
                     self.SourcePortTextBox.text() if self.SourcePortTextBox.text() != '' else None,
                     self.DestinationPortTextBox.text() if self.DestinationPortTextBox.text() != '' else None)
-                try:
-                    ipTablesManager.add_rule_TCP(ipTable)
-                    passInsertRule(ipTable)
-                except:
-                    pass
+                # try:
+                ipTablesManager.add_rule_TCP(ipTable)
+                passInsertRule(ipTable)
+                # except:
+                #    pass
             elif prev == 'UDP':
                 ipTable = IPTableRuleUDP(
                     self.TableTypeCombobox.currentText(),
@@ -195,7 +195,6 @@ class InsertRuleWindow(QtGui.QWidget):
 
         def insertRuleModalHide():
             ClearAndCloseModal()
-
 
         self.SaveButton.clicked.connect(insertRule) #Save button event
         self.CancelButton.clicked.connect(insertRuleModalHide) #Cancel button event

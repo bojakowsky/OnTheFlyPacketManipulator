@@ -1,10 +1,10 @@
 from enum import Enum
 from subprocess import call, check_call
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRule import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleUDP import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleTCP import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables.IPTableRuleICMP import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables.TableActions import *
+from LOGIC.IPTables.IPTableRule import *
+from LOGIC.IPTables.IPTableRuleUDP import *
+from LOGIC.IPTables.IPTableRuleTCP import *
+from LOGIC.IPTables.IPTableRuleICMP import *
+from LOGIC.IPTables.TableActions import *
 
 class IPTablesManager:
     rulesList = []

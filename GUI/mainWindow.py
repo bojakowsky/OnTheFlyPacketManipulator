@@ -3,14 +3,15 @@ import gtk
 
 from PyQt4 import QtGui, QtCore
 #from PyQt4.QtCore import QThreadPool, pyqtSignal, QObject, QRunnable
-from OnTheFlyPacketManipulator.GUI.insertRuleWindow import *
-from OnTheFlyPacketManipulator.LOGIC.PacketManager import *
-from OnTheFlyPacketManipulator.LOGIC.IPTables import *
+from GUI.insertRuleWindow import *
+from LOGIC.PacketManager import *
+from LOGIC.IPTables import *
 
-lista = ['aa', 'ab', 'ac', 'ba', 'eds', 'ol']
-listb = ['ba', 'bb', 'bc']
-listc = ['ca', 'cb', 'cc']
-mystruct = {'A': lista, 'B': listb, 'C': listc}
+
+# lista = ['aa', 'ab', 'ac', 'ba', 'eds', 'ol']
+# listb = ['ba', 'bb', 'bc']
+# listc = ['ca', 'cb', 'cc']
+# 'A': lista, 'B': listb, 'C': listc
 
 window = gtk.Window()
 screen = window.get_screen()
@@ -24,61 +25,50 @@ for m in range(nmons):
 curmon = screen.get_monitor_at_window(screen.get_active_window())
 x, y, mWidth, mHeight = monitors[curmon]
 
-
-
 ipTablesManager = IPTablesManager()
-mgr = PacketManager()
+
+
 class MyTable(QtGui.QTableWidget):
-    def __init__(self, thestruct, *args):
+    def __init__(self, *args):
         QtGui.QTableWidget.__init__(self, *args)
         self.setGeometry(600, 600, 600, 600)
-        self.data = thestruct
-        self.setmydata()
+        self.data = {}
+        self.setItem(9999, 9999, QtGui.QTableWidgetItem(":)"))
+        #self.set_table_data()
+        
 
-    def setmydata(self):
+    def set_table_data(self):
         n = 0
-        for key in self.data:
-            m = 0
-            for item in self.data[key]:
-                newitem = QtGui.QTableWidgetItem(item)
-                self.setItem(n, m, newitem)
-                m += 1
-            n += 1
+        if self.data:
+            for key in self.data:
+                m = 0
+                for item in self.data[key]:
+                    newitem = QtGui.QTableWidgetItem(item)
+                    self.setItem(n, m, newitem)
+                    m += 1
+                n += 1
 
-class myListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
+
+class MyListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
     pass
 
 
-def mainWindowRun():
-    mgrThread = PacketManagerThread()
-    mgrThread.start()
+class MainView(QtGui.QWidget):
 
-    mvThread = MainViewThread()
-    mvThread.start()
-
-class MainViewThread(QThread):
-    def __init__(self):
-        QThread.__init__(self)
-
-    def __del__(self):
-        self.wait()
-
-    def run(self):
-        mv = mainView()
-
-class mainView(QtGui.QWidget):
-
-    def __init__(self):
-        super(mainView, self).__init__()
+    def __init__(self, packetQueue):
+        super(MainView, self).__init__()
+        self.table = MyTable(50, 20)
         self.initUI()
+        self.packetQueue = packetQueue
+
 
     def initUI(self):
-        list = myListWidget()
+        list = MyListWidget()
         hbox = QtGui.QHBoxLayout(self)
 
         insertButton = QtGui.QPushButton('New rule')
         removeButton = QtGui.QPushButton('Remove selected')
-        table = MyTable(mystruct, 50, 20)
+
 
         def removeRule():
             for SelectedItem in list.selectedItems():
@@ -91,6 +81,15 @@ class mainView(QtGui.QWidget):
         def insertRuleModalShow():
             insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
             insertRuleWindow.show()
+            print(self.packetQueue)
+            j = 0
+            for queList in self.packetQueue:
+                i = 0
+                for key, value in queList.iteritems():
+                    newItem = QtGui.QTableWidgetItem(key + ": " + str(value))
+                    self.table.setItem(j, i, newItem)
+                    i = i + 1
+                j = j + 1
 
         insertButton.clicked.connect(insertRuleModalShow)
 
@@ -103,7 +102,7 @@ class mainView(QtGui.QWidget):
         buttonSplitter.addWidget(insertButton)
         buttonSplitter.addWidget(removeButton)
         vericalSplitter.addWidget(buttonSplitter)
-        vericalSplitter.addWidget(table)
+        vericalSplitter.addWidget(self.table)
 
         hbox.addWidget(vericalSplitter)
         self.setLayout(hbox)
@@ -112,3 +111,4 @@ class mainView(QtGui.QWidget):
         self.setGeometry(0, 0, mWidth/2, mHeight)
         self.setWindowTitle('OnTheFlyPacketManipulator')
         self.show()
+
