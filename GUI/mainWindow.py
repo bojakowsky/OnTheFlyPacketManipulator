@@ -45,17 +45,23 @@ class MainView(QtGui.QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.packetQueueRefresher)
         self.timer.start(500)
-        self.packetEditWindow = PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, 0)
+        self.packetEditWindow = None #PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, 0)
+        self.insertRuleWindow = None
         self.table.cellDoubleClicked.connect(self.rowClicked)
 
-    @pyqtSlot(int, int)
-    def rowClicked(self, item1, y):
-        print(x, y)
-        if (x <= 0) and (x < len(self.packetQueue)):
-            self.packetEditWindow.index = x
-            self.packetEditWindow.show()
-            self.packetEditWindow.addPacketToTable()
+    def __del__(self):
+        if self.packetEditWindow is not None:
+            del self.packetEditWindow
+        if self.insertRuleWindow is not None:
+            del self.insertRuleWindow
 
+    @pyqtSlot(int, int)
+    def rowClicked(self, i, j):
+        print(i, j)
+        if (x <= 0) and (x < len(self.packetQueue)):
+            self.packetEditWindow = PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, i)
+            self.packetEditWindow.addPacketToTable()
+            self.packetEditWindow.show()
 
     def packetQueueRefresher(self):
         j = 0
@@ -87,8 +93,9 @@ class MainView(QtGui.QWidget):
         removeButton.clicked.connect(removeRule)
 
         def insertRuleModalShow():
-            insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
-            insertRuleWindow.show()
+            self.insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
+            self.insertRuleWindow.show()
+
 
 
         insertButton.clicked.connect(insertRuleModalShow)
@@ -103,13 +110,27 @@ class MainView(QtGui.QWidget):
         buttonSplitter.addWidget(removeButton)
         verticalSplitter.addWidget(buttonSplitter)
 
-        removeTableRow = QtGui.QPushButton("Delete table row")
+        removeTableRowButton = QtGui.QPushButton("Delete table row")
         nextButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        removeAllRows = QtGui.QPushButton("Delete all table rows")
-        nextButtonSplitter.addWidget(removeAllRows)
-        nextButtonSplitter.addWidget(removeTableRow)
-        #removeTableRow.connect(deleteTableRow)
-        #removeAllRows.conn
+        removeAllRowsButton = QtGui.QPushButton("Delete all table rows")
+        nextButtonSplitter.addWidget(removeAllRowsButton)
+        nextButtonSplitter.addWidget(removeTableRowButton)
+
+        def deleteTableRow():
+            index = self.table.currentRow()
+            v = self.table.item(index, 0)
+            if v is not None:
+                self.packetQueue.remove(self.packetQueue[index])
+                self.packetQueueRaw.remove(self.packetQueueRaw[index])
+                self.table.removeRow(index)
+
+        def deleteAllTableRows():
+            self.packetQueue[:] = []
+            self.packetQueueRaw[:] = []
+            self.table.clearContents()
+
+        removeTableRowButton.clicked.connect(deleteTableRow)
+        removeAllRowsButton.clicked.connect(deleteAllTableRows)
 
         verticalSplitter.addWidget(nextButtonSplitter)
         verticalSplitter.addWidget(self.table)

@@ -198,7 +198,8 @@ def send_packet_based_on_layers(layersNew, raw):
             for key, value in lay.fields.iteritems():
                 newLay = eval(str(layersNew[counter]))
                 lay.fields[key] = newLay[key]
-            #lay.fields = eval(str(layersNew[counter]))
+                if "load" in key:
+                    pkt[counter - 1].payload = newLay[key]
         counter = counter + 1
 
 def send_packet_back(pkt):

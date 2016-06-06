@@ -61,7 +61,7 @@ class InsertRuleWindow(QtGui.QWidget):
         #Init layout
         self.insertRuleWidget.setLayout(self.StandardLayout)
         self.RuleSpliterStandard = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.StandardLayout.addWidget(self.RuleSpliterStandard)
+
 
         #Rule name layout
         self.RuleSpliterStandard.addWidget(self.RuleNameLabel)
@@ -122,8 +122,18 @@ class InsertRuleWindow(QtGui.QWidget):
         self.ButtonSplitter.addWidget(self.SaveButton)
         self.ButtonSplitter.addWidget(self.CancelButton)
 
-        self.RuleSpliterStandard.addWidget(self.ButtonSplitter)
+        #self.RuleSpliterStandard.addWidget(self.ButtonSplitter)
 
+        self.scroll = QtGui.QScrollArea()
+        self.scroll.setWidget(self.RuleSpliterStandard)
+        self.scroll.setFixedHeight(400)
+        self.scroll.setWidgetResizable(True)
+        self.ScrollSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.ScrollSplitter.addWidget(self.scroll)
+        self.scrollAndButtonsSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.scrollAndButtonsSplitter.addWidget(self.ScrollSplitter)
+        self.scrollAndButtonsSplitter.addWidget(self.ButtonSplitter)
+        self.StandardLayout.addWidget(self.scrollAndButtonsSplitter)
         #Events
         def ClearAndCloseModal():
             self.insertRuleWidget.deleteLater()

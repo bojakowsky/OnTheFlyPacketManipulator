@@ -12,7 +12,7 @@ class PacketEditWindow(QtGui.QWidget):
 
     def __init__(self, appWindow, mWidth, mHeight, queue, queueRaw, index):
         super(PacketEditWindow, self).__init__()
-
+        self.appWindow = appWindow
         self.setWindowTitle("Packet edit")
         self.setGeometry(0, mHeight / 4, mWidth/4, mHeight / 2)
         self.standardLayout = QtGui.QHBoxLayout()
@@ -40,7 +40,8 @@ class PacketEditWindow(QtGui.QWidget):
 
         def hide_modal():
             self.table.clear()
-            self.hide()
+            self.deleteLater()
+
 
 
         def send_data():
@@ -48,6 +49,11 @@ class PacketEditWindow(QtGui.QWidget):
             for i in range(0, self.table.rowCount()):
                 layers.append(self.table.item(i, 0).text())
             send_packet_based_on_layers(layers, self.queueRaw[self.index])
+            #Removing existing
+            self.queueRaw.remove(self.queueRaw[self.index])
+            self.queue.remove(self.queue[self.index])
+            self.appWindow.table.removeRow(self.index)
+            hide_modal()
 
         #Slots
         self.SendButton.clicked.connect(send_data)  # Save button event
