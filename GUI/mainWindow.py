@@ -1,8 +1,8 @@
 import sys
 import gtk
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import QTimer
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from GUI.insertRuleWindow import *
 from GUI.packetEditWindow import *
 
@@ -45,10 +45,16 @@ class MainView(QtGui.QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.packetQueueRefresher)
         self.timer.start(500)
-
         self.packetEditWindow = PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, 0)
+        self.table.cellDoubleClicked.connect(self.rowClicked)
 
-
+    @pyqtSlot(int, int)
+    def rowClicked(self, item1, y):
+        print(x, y)
+        if (x <= 0) and (x < len(self.packetQueue)):
+            self.packetEditWindow.index = x
+            self.packetEditWindow.show()
+            self.packetEditWindow.addPacketToTable()
 
 
     def packetQueueRefresher(self):
@@ -83,9 +89,6 @@ class MainView(QtGui.QWidget):
         def insertRuleModalShow():
             insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
             insertRuleWindow.show()
-            self.packetEditWindow.show()
-            self.packetEditWindow.addPacketToTable()
-
 
 
         insertButton.clicked.connect(insertRuleModalShow)
@@ -93,15 +96,26 @@ class MainView(QtGui.QWidget):
         rulesLabel = QtGui.QLabel()
         rulesLabel.setText("Rules")
         buttonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        vericalSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        vericalSplitter.addWidget(rulesLabel)
-        vericalSplitter.addWidget(list)
+        verticalSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        verticalSplitter.addWidget(rulesLabel)
+        verticalSplitter.addWidget(list)
         buttonSplitter.addWidget(insertButton)
         buttonSplitter.addWidget(removeButton)
-        vericalSplitter.addWidget(buttonSplitter)
-        vericalSplitter.addWidget(self.table)
+        verticalSplitter.addWidget(buttonSplitter)
 
-        hbox.addWidget(vericalSplitter)
+        removeTableRow = QtGui.QPushButton("Delete table row")
+        nextButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        removeAllRows = QtGui.QPushButton("Delete all table rows")
+        nextButtonSplitter.addWidget(removeAllRows)
+        nextButtonSplitter.addWidget(removeTableRow)
+        #removeTableRow.connect(deleteTableRow)
+        #removeAllRows.conn
+
+        verticalSplitter.addWidget(nextButtonSplitter)
+        verticalSplitter.addWidget(self.table)
+
+        hbox.addWidget(verticalSplitter)
+
         self.setLayout(hbox)
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
 

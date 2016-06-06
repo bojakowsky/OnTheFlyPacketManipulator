@@ -114,6 +114,7 @@ def send_echo_reply(pkt):
     icmp = ICMP()
     ip.src = pkt[IP].dst
     ip.dst = pkt[IP].src
+    print(ip.dst)
     icmp.type = 0
     icmp.code = 0
     icmp.id = pkt[ICMP].id

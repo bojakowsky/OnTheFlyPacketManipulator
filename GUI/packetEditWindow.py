@@ -14,7 +14,7 @@ class PacketEditWindow(QtGui.QWidget):
         super(PacketEditWindow, self).__init__()
 
         self.setWindowTitle("Packet edit")
-        self.setGeometry(0, mHeight / 4, mWidth/4, mHeight / 4)
+        self.setGeometry(0, mHeight / 4, mWidth/4, mHeight / 2)
         self.standardLayout = QtGui.QHBoxLayout()
 
         self.table = PacketTable(1, 1)
