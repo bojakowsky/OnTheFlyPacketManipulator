@@ -1,19 +1,16 @@
-import sys
-
 import multiprocessing
-from subprocess import call
 from GUI.mainWindow import *
+from LOGIC.PacketManager import *
 
 
+app = QtGui.QApplication(sys.argv)
 
-
-def runApp(queue):
-    app = QtGui.QApplication(sys.argv)
-    mv = MainView(queue)
+def runApp(queue, queueRaw):
+    mv = MainView(queue, queueRaw)
     sys.exit(app.exec_())
 
-def runPacketManager(queue):
-    pm = PacketManager(queue)
+def runPacketManager(queue, queueRaw):
+    pm = PacketManager(queue, queueRaw)
     pm.run_manager()
 
 
@@ -27,20 +24,25 @@ def main():
 
 
         queue = multiprocessing.Manager().list()
-
-        packetManagerProcess = multiprocessing.Process(target=runPacketManager, args=(queue,))
+        queueRaw = multiprocessing.Manager().list()
+        packetManagerProcess = multiprocessing.Process(target=runPacketManager, args=(queue, queueRaw, ))
+        packetManagerProcess.daemon = True
         packetManagerProcess.start()
 
-        appProcess = multiprocessing.Process(target=runApp, args=(queue,))
+        appProcess = multiprocessing.Process(target=runApp, args=(queue, queueRaw))
+        appProcess.daemon = False
         appProcess.start()
 
+        appProcess.join()
+        packetManagerProcess.terminate()
     finally:
-        packetManagerProcess.join()
-        appProcess.join
-
-        print("retoring...")
+        print("Retoring ip tables...")
         call("iptables-restore < iptables-backup", shell=True)
-        print("resotred.")
+        print("Resotred.")
+
+        print("Cleaning up.")
+        call("pkill -f ApplicationMain.py", shell=True) #making sure scapy nfqueue has been closed
+        print("Bye!")
 
 if __name__ == '__main__':
     main()

@@ -22,9 +22,9 @@ class IPTableRuleUDP(IPTableRule):
         rule.append('-p')
         rule.append('UDP')
         if self.sport is not None:
-            rule.append('--dport')
-            rule.append(self.dport)
-        if self.dport is not None:
             rule.append('--sport')
             rule.append(self.sport)
+        if self.dport is not None:
+            rule.append('--dport')
+            rule.append(self.dport)
         return rule

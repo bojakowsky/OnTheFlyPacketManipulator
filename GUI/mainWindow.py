@@ -2,16 +2,9 @@ import sys
 import gtk
 
 from PyQt4 import QtGui, QtCore
-#from PyQt4.QtCore import QThreadPool, pyqtSignal, QObject, QRunnable
+from PyQt4.QtCore import QTimer
 from GUI.insertRuleWindow import *
-from LOGIC.PacketManager import *
-from LOGIC.IPTables import *
-
-
-# lista = ['aa', 'ab', 'ac', 'ba', 'eds', 'ol']
-# listb = ['ba', 'bb', 'bc']
-# listc = ['ca', 'cb', 'cc']
-# 'A': lista, 'B': listb, 'C': listc
+from GUI.packetEditWindow import *
 
 window = gtk.Window()
 screen = window.get_screen()
@@ -33,20 +26,6 @@ class MyTable(QtGui.QTableWidget):
         QtGui.QTableWidget.__init__(self, *args)
         self.setGeometry(600, 600, 600, 600)
         self.data = {}
-        self.setItem(9999, 9999, QtGui.QTableWidgetItem(":)"))
-        #self.set_table_data()
-        
-
-    def set_table_data(self):
-        n = 0
-        if self.data:
-            for key in self.data:
-                m = 0
-                for item in self.data[key]:
-                    newitem = QtGui.QTableWidgetItem(item)
-                    self.setItem(n, m, newitem)
-                    m += 1
-                n += 1
 
 
 class MyListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
@@ -55,12 +34,35 @@ class MyListWidget(QtGui.QListWidget, QtGui.QListWidgetItem):
 
 class MainView(QtGui.QWidget):
 
-    def __init__(self, packetQueue):
+    def __init__(self, packetQueue, packetQueueRaw):
         super(MainView, self).__init__()
-        self.table = MyTable(50, 20)
+        self.table = MyTable(50, 12)
+        self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.initUI()
         self.packetQueue = packetQueue
+        self.packetQueueRaw = packetQueueRaw;
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.packetQueueRefresher)
+        self.timer.start(500)
 
+        self.packetEditWindow = PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, 0)
+
+
+
+
+    def packetQueueRefresher(self):
+        j = 0
+        for queList in self.packetQueue:
+            i = 0
+            for key, value in queList.iteritems():
+                newItem = QtGui.QTableWidgetItem(key + ": " + str(value))
+                self.table.setItem(j, i, newItem)
+                i = i + 1
+            j = j + 1
+
+        if len(self.packetQueue) > 0:
+            self.table.resizeColumnsToContents()
 
     def initUI(self):
         list = MyListWidget()
@@ -81,15 +83,10 @@ class MainView(QtGui.QWidget):
         def insertRuleModalShow():
             insertRuleWindow = InsertRuleWindow(self, mWidth, mHeight, list, ipTablesManager)
             insertRuleWindow.show()
-            print(self.packetQueue)
-            j = 0
-            for queList in self.packetQueue:
-                i = 0
-                for key, value in queList.iteritems():
-                    newItem = QtGui.QTableWidgetItem(key + ": " + str(value))
-                    self.table.setItem(j, i, newItem)
-                    i = i + 1
-                j = j + 1
+            self.packetEditWindow.show()
+            self.packetEditWindow.addPacketToTable()
+
+
 
         insertButton.clicked.connect(insertRuleModalShow)
 

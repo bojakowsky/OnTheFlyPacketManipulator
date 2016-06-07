@@ -1,7 +1,5 @@
 from PyQt4 import QtGui, QtCore
 
-from LOGIC.IPTables.IPTableRuleICMP import *
-from LOGIC.IPTables.IPTableRuleUDP import *
 from LOGIC.IPTablesManager import *
 from LOGIC.SupportedProtocols import *
 

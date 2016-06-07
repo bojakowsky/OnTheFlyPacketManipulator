@@ -24,11 +24,11 @@ class IPTableRuleTCP(IPTableRule):
         rule.append('-p')
         rule.append('TCP')
         if self.sport is not None:
-            rule.append('--dport')
-            rule.append(self.dport)
-        if self.dport is not None:
             rule.append('--sport')
             rule.append(self.sport)
+        if self.dport is not None:
+            rule.append('--dport')
+            rule.append(self.dport)
         if self.considerFlags is not None:
             if self.matchFlags is not None:
                 rule.append('--tcp-flags')
