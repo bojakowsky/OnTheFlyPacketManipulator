@@ -19,8 +19,8 @@ class PacketEditWindow(QtGui.QWidget):
 
         self.table = PacketTable(1, 1)
         self.verticalSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.hexdump = QtGui.QLabel(self)
-        self.verticalSplitter.addWidget(self.hexdump)
+
+        self.verticalSplitter.addWidget(self.getTopSection())
         self.verticalSplitter.addWidget(self.table)
 
         self.standardLayout.addWidget(self.verticalSplitter)
@@ -48,7 +48,8 @@ class PacketEditWindow(QtGui.QWidget):
             layers = []
             for i in range(0, self.table.rowCount()):
                 layers.append(self.table.item(i, 0).text())
-            send_packet_based_on_layers(layers, self.queueRaw[self.index])
+            send_packet_based_on_layers(layers, self.queueRaw[self.index],
+                self.srcAndDstCheckbox.isChecked(), self.sportAndDportCheckbox.isChecked(), self.chksumAndLenCheckbox.isChecked())
             #Removing existing
             self.queueRaw.remove(self.queueRaw[self.index])
             self.queue.remove(self.queue[self.index])
@@ -59,6 +60,25 @@ class PacketEditWindow(QtGui.QWidget):
         self.SendButton.clicked.connect(send_data)  # Save button event
         self.CancelButton.clicked.connect(hide_modal)  # Cancel button event
 
+    def getTopSection(self):
+        self.hexdump = QtGui.QLabel(self)
+        self.srcAndDstCheckbox = QtGui.QCheckBox()
+        self.srcAndDstCheckbox.setText("Handle src and dst")
+        self.sportAndDportCheckbox = QtGui.QCheckBox()
+        self.sportAndDportCheckbox.setText("Handle sport and dport")
+        self.chksumAndLenCheckbox = QtGui.QCheckBox()
+        self.chksumAndLenCheckbox.setText("Handle chksum and len")
+
+        checkboxSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        checkboxSplitter.addWidget(self.srcAndDstCheckbox)
+        checkboxSplitter.addWidget(self.sportAndDportCheckbox)
+        checkboxSplitter.addWidget(self.chksumAndLenCheckbox)
+        commonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.hexdump.setFixedWidth(commonSplitter.width())
+        checkboxSplitter.setFixedWidth(commonSplitter.width())
+        commonSplitter.addWidget(self.hexdump)
+        commonSplitter.addWidget(checkboxSplitter)
+        return commonSplitter
 
     def addPacketToTable(self):
         if len(self.queueRaw) == 0:

@@ -126,7 +126,7 @@ class InsertRuleWindow(QtGui.QWidget):
 
         self.scroll = QtGui.QScrollArea()
         self.scroll.setWidget(self.RuleSpliterStandard)
-        self.scroll.setFixedHeight(400)
+        self.scroll.setFixedHeight(460)
         self.scroll.setWidgetResizable(True)
         self.ScrollSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.ScrollSplitter.addWidget(self.scroll)

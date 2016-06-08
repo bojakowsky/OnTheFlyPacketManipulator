@@ -1,10 +1,12 @@
 import sys
 import gtk
+from wx.lib.agw.aui.aui_constants import vertical_border_padding
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from GUI.insertRuleWindow import *
 from GUI.packetEditWindow import *
+from LOGIC.PacketManager import send_fuzzed_packet_back, send_auto_packet_back, get_packet_from_raw
 
 window = gtk.Window()
 screen = window.get_screen()
@@ -36,7 +38,7 @@ class MainView(QtGui.QWidget):
 
     def __init__(self, packetQueue, packetQueueRaw):
         super(MainView, self).__init__()
-        self.table = MyTable(50, 12)
+        self.table = MyTable(255, 12)
         self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.initUI()
@@ -45,7 +47,7 @@ class MainView(QtGui.QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.packetQueueRefresher)
         self.timer.start(500)
-        self.packetEditWindow = None #PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, 0)
+        self.packetEditWindow = None
         self.insertRuleWindow = None
         self.table.cellDoubleClicked.connect(self.rowClicked)
 
@@ -58,7 +60,7 @@ class MainView(QtGui.QWidget):
     @pyqtSlot(int, int)
     def rowClicked(self, i, j):
         print(i, j)
-        if (x <= 0) and (x < len(self.packetQueue)):
+        if (i >= 0) and (i < len(self.packetQueue)):
             self.packetEditWindow = PacketEditWindow(self, mWidth + mWidth, mHeight, self.packetQueue, self.packetQueueRaw, i)
             self.packetEditWindow.addPacketToTable()
             self.packetEditWindow.show()
@@ -106,14 +108,20 @@ class MainView(QtGui.QWidget):
         verticalSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         verticalSplitter.addWidget(rulesLabel)
         verticalSplitter.addWidget(list)
+        insertButton.setFixedWidth(buttonSplitter.width())
+        removeButton.setFixedWidth(buttonSplitter.width())
         buttonSplitter.addWidget(insertButton)
         buttonSplitter.addWidget(removeButton)
         verticalSplitter.addWidget(buttonSplitter)
 
+
+        #Buttons
         removeTableRowButton = QtGui.QPushButton("Delete table row")
         nextButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         removeAllRowsButton = QtGui.QPushButton("Delete all table rows")
+        removeAllRowsButton.setFixedWidth(nextButtonSplitter.width())
         nextButtonSplitter.addWidget(removeAllRowsButton)
+        removeTableRowButton.setFixedWidth(nextButtonSplitter.width())
         nextButtonSplitter.addWidget(removeTableRowButton)
 
         def deleteTableRow():
@@ -132,7 +140,40 @@ class MainView(QtGui.QWidget):
         removeTableRowButton.clicked.connect(deleteTableRow)
         removeAllRowsButton.clicked.connect(deleteAllTableRows)
 
+        #Next line of buttons
+        tryAutoReplyButton = QtGui.QPushButton("Try auto reply")
+        lastButtonSplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        fuzzReplyButton = QtGui.QPushButton("Fuzz reply")
+        tryAutoReplyButton.setFixedWidth(nextButtonSplitter.width())
+        lastButtonSplitter.addWidget(tryAutoReplyButton)
+        fuzzReplyButton.setFixedWidth(nextButtonSplitter.width())
+        lastButtonSplitter.addWidget(fuzzReplyButton)
+
+        def sendFuzzReply():
+            index = self.table.currentRow()
+            if (index >= 0) and (index < len(self.packetQueue)):
+                pkt = get_packet_from_raw(self.packetQueueRaw[index])
+                send_fuzzed_packet_back(pkt)
+                self.packetQueue.remove(self.packetQueue[index])
+                self.packetQueueRaw.remove(self.packetQueueRaw[index])
+                self.table.removeRow(index)
+
+        def sendAutoReply():
+            index = self.table.currentRow()
+            if (index >= 0) and (index < len(self.packetQueue)):
+                pkt = get_packet_from_raw(self.packetQueueRaw[index])
+                send_auto_packet_back(pkt)
+                self.packetQueue.remove(self.packetQueue[index])
+                self.packetQueueRaw.remove(self.packetQueueRaw[index])
+                self.table.removeRow(index)
+
+        fuzzReplyButton.clicked.connect(sendFuzzReply)
+        tryAutoReplyButton.clicked.connect(sendAutoReply)
+
+        horizontalLine = self.horizontalLine()
+        verticalSplitter.addWidget(horizontalLine)
         verticalSplitter.addWidget(nextButtonSplitter)
+        verticalSplitter.addWidget(lastButtonSplitter)
         verticalSplitter.addWidget(self.table)
 
         hbox.addWidget(verticalSplitter)
@@ -144,3 +185,9 @@ class MainView(QtGui.QWidget):
         self.setWindowTitle('OnTheFlyPacketManipulator')
         self.show()
 
+    def horizontalLine(self):
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setFixedHeight(20)
+        return line
