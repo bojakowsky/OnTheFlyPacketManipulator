@@ -8,7 +8,7 @@ from LOGIC.IPTables.TableActions import *
 
 class IPTablesManager:
     rulesList = []
-    policyList = []
+    # policyList = []
     def add_table_rules_manager(self, ipTableRule):
         IPTablesManager.rulesList.append(ipTableRule)
 
@@ -42,13 +42,13 @@ class IPTablesManager:
         del IPTablesManager.rulesList[ruleId]
         print(len(IPTablesManager.rulesList))
 
-    def set_chain_policy(self, ipTablePolicy):
-        call(["iptables", '-t',
-              ipTablePolicy.tableType,
-              TableActionEnum.set_default_chain_policy.value,
-              ipTablePolicy.chain,
-              ipTablePolicy.chainTarget])
-        IPTablesManager.policyList[ipTablePolicy.chain] = ipTablePolicy.chainTarget
+    # def set_chain_policy(self, ipTablePolicy):
+    #     call(["iptables", '-t',
+    #           ipTablePolicy.tableType,
+    #           TableActionEnum.set_default_chain_policy.value,
+    #           ipTablePolicy.chain,
+    #           ipTablePolicy.chainTarget])
+    #     IPTablesManager.policyList[ipTablePolicy.chain] = ipTablePolicy.chainTarget
 
     def return_table_as_string(self, ipTableRule):
         #members = [attr for attr in dir(ipTableRule) if not callable(attr) and not attr.startswith("__")]

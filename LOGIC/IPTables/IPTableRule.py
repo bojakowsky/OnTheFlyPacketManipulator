@@ -41,6 +41,17 @@ class IPTableRule(object):
               self.tableType,
               TableActionEnum.delete_from_chain.value,
               self.chain, '-j', self.chainTarget]
+        if self.source is not None:
+            removeRule.append('-s')
+            removeRule.append(self.source)
+        if self.destination is not None:
+            removeRule.append('-d')
+            removeRule.append(self.destination)
+        if self.limit is not None:
+            removeRule.append('-m')
+            removeRule.append('limit')
+            removeRule.append('--limit')
+            removeRule.append(self.limit)
         return removeRule
 
     def build_protocol_specific_rule(self, rule):
