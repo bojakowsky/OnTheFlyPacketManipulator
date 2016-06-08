@@ -1,5 +1,4 @@
 from enum import Enum
-from IPTablePolicy import *
 from TableActions import *
 
 class IPTableRule(object):
@@ -46,6 +45,12 @@ class IPTableRule(object):
 
     def build_protocol_specific_rule(self, rule):
         pass
+
+class TableTypeEnum(Enum):
+    filter = 'filter' #default table
+    nat = 'nat' #for packets that establish connections
+    mangle = 'mangle' #for specialized changes in the packets
+    raw = 'raw' #highest priority table, packets go to this table first
 
 class ChainEnum(Enum):
     input = 'INPUT' #executed for incoming packets, puprosed for local machine
