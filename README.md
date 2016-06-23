@@ -9,5 +9,5 @@ Our task was to create packet manipulator with graphical user interface. <br/>
 * fuzz replying, sending
 * custom packet editing, sending
 
-Documentation written in Polish language [read me!](PT-dokumentacja-Bojakowski.pdf)
+Documentation written in Polish language [read me!](PT-dokumentacja-Bojakowski_Kmieciak.pdf)
 
